@@ -1,0 +1,117 @@
+/**
+ * @author TODO Autor*in 1 eintragen
+ * @author TODO Autor*in 2 eintragen
+ * @date   TODO Datum eintragen
+ */
+
+#include <iostream>
+#include "TimeHelper.h"
+#include "FestoTransferSystem.h"
+#include "FestoTransferSystem.cpp"
+#define WAIT 1000
+#define Durchlauf 1
+
+using namespace std;
+
+
+
+
+int main() {
+    FestoTransferSystem PR1; //tranferSystem
+    for(int i=0; i<Durchlauf; i++){
+
+        PR1.lampRed.setState(true);     // Rote Lampe an
+        PR1.updateActuators();          // Ausgabe
+        sleepForMS(1000);           // dauer an 1 Sekunde
+        PR1.lampRed.setState(false);    // Rote Lampe aus
+
+
+        PR1.lampYellow.setState(true);  // Gelbe Lampe an
+        PR1.updateActuators();          // Ausgabe
+
+        PR1.updateSensors(); // Update Sensoren, alle Lichtschranken
+        cout << PR1.lightbarrierBegin.getState() << endl;
+        cout << PR1.lightbarrierEnd.getState() << endl;
+        cout << PR1.lightbarrierHeightSensor.getState() << endl;
+        cout << PR1.lightbarrierBufferFull.getState() << endl;
+        cout << PR1.lightbarrierFeedSeparator.getState() << endl;
+
+        sleepForMS(1000);           // dauer an 1 Sekunde
+        PR1.lampYellow.setState(false); // Gelbe Lampe aus
+
+
+
+        PR1.lampGreen.setState(true);   // Grüne Lampe an
+        PR1.updateActuators();          // Ausgabe
+
+        PR1.updateSensors(); // updateSensors für Lichtschranke
+        cout << PR1.lightbarrierBegin.getState() << endl; // alle lichtschranken
+        cout << PR1.lightbarrierEnd.getState() << endl;
+        cout << PR1.lightbarrierHeightSensor.getState() << endl;
+        cout << PR1.lightbarrierBufferFull.getState() << endl;
+        cout << PR1.lightbarrierFeedSeparator.getState() << endl;
+
+        sleepForMS(1000);           // dauer an  1 Sekunde
+        PR1.lampGreen.setState(false);  // Grüne Lampe aus
+
+    }
+
+    PR1.lampYellow.setState(true);  // Gelbe Lampe an
+    PR1.updateActuators();          // Ausgabe
+
+    PR1.updateSensors(); // updateSensors für Lichtschranke
+    cout << PR1.lightbarrierBegin.getState() << endl; // alle lichtschranken
+    cout << PR1.lightbarrierEnd.getState() << endl;
+    cout << PR1.lightbarrierHeightSensor.getState() << endl;
+    cout << PR1.lightbarrierBufferFull.getState() << endl;
+    cout << PR1.lightbarrierFeedSeparator.getState() << endl;
+
+    while(PR1.switchEmergency.getState() == true){
+
+        PR1.updateSensors();
+
+        if(PR1.pushbuttonStart.getState() == true  && PR1.lightbarrierEnd.getState() == true){
+            PR1.ledStart.setState(true);
+            PR1.drive.setSpeed(4);
+        }
+        else {
+            PR1.ledStart.setState(false);
+            PR1.drive.setSpeed(0);
+        }
+
+        if(PR1.pushbuttonStop.getState() == false){
+            PR1.feedSeparator.setState(true);
+            PR1.ledReset.setState(true);
+        }
+        else {
+            PR1.feedSeparator.setState(false);
+            PR1.ledReset.setState(false);
+        }
+
+        if(PR1.lightbarrierBegin.getState() == false){
+            PR1.ledQ1.setState(true);
+        }
+        else {
+            PR1.ledQ1.setState(false);
+        }
+        if(PR1.lightbarrierHeightSensor.getState() == true){
+            PR1.ledQ2.setState(true);
+        }
+        else{
+            PR1.ledQ2.setState(false);
+        }
+        PR1.updateActuators();
+
+    }
+    if(PR1.switchEmergency.getState()==false){
+        PR1.drive.setSpeed(0);
+        PR1.ledStart.setState(false);
+        PR1.feedSeparator.setState(false);
+        PR1.ledQ2.setState(false);
+        PR1.ledQ1.setState(false);
+        PR1.lampYellow.setState(false);
+        PR1.updateActuators();
+    }
+    return 0;
+}
+
